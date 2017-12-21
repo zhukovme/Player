@@ -1,0 +1,57 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply from: "$rootDir/tools/lint-config.gradle"
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.zhukovme.player"
+        minSdkVersion 14
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+kapt {
+    generateStubs = true
+}
+
+ext.support_lib_version = '27.0.2'
+ext.kotlinx_coroutines = '0.20'
+ext.leakcanary = '1.5'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines"
+
+    // Android
+    implementation "com.android.support:appcompat-v7:$support_lib_version"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    // Memory leak detection
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanary"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanary"
+    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanary"
+
+    // Logger
+    implementation 'com.jakewharton.timber:timber:4.6.0'
+
+    // Unit tests
+    testImplementation 'junit:junit:4.12'
+
+    // UI tests
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
