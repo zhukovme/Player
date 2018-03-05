@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.0'
+    ext.kotlin_version = '1.2.30'
     repositories {
         google()
         jcenter()
@@ -11,7 +11,7 @@ buildscript {
 }
 
 plugins {
-    id "io.gitlab.arturbosch.detekt" version "1.0.0.RC5-6"
+    id "io.gitlab.arturbosch.detekt" version "1.0.0.RC6-3"
 }
 
 allprojects {
@@ -26,12 +26,10 @@ task clean(type: Delete) {
 }
 
 detekt {
-    debug = true
-    version = "1.0.0.RC5-6"
+    version = "1.0.0.RC6-3"
     profile("main") {
         input = "$rootDir/app/src/main/java"
         output = "$rootDir/reports"
-        config = "$rootDir/tools/detekt-config.yml"
-        filters = ".*test.*,.*/resources/.*"
+        filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
     }
 }
