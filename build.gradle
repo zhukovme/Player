@@ -1,17 +1,17 @@
 buildscript {
-    ext.kotlin_version = '1.2.30'
+    ext.kotlin_version = '1.2.31'
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 plugins {
-    id "io.gitlab.arturbosch.detekt" version "1.0.0.RC6-3"
+    id "io.gitlab.arturbosch.detekt" version "1.0.0.RC6-4"
 }
 
 allprojects {
@@ -26,10 +26,11 @@ task clean(type: Delete) {
 }
 
 detekt {
-    version = "1.0.0.RC6-3"
+    version = "1.0.0.RC6-4"
     profile("main") {
         input = "$rootDir/app/src/main/java"
         output = "$rootDir/reports"
+        config = "$projectDir/tools/detekt-config.yml"
         filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
     }
 }

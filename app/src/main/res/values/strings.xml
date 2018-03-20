@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Player</string>
+
+    <string name="playback.toolbar_title">Albums</string>
+    <string name="playback.toolbar_subtitle">6 Pop music Albums</string>
+
 </resources>

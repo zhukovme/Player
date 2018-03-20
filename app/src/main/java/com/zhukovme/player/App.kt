@@ -16,7 +16,7 @@ class App : Application() {
         fun get(context: Context): App = context.applicationContext as App
     }
 
-    lateinit var refWatcher: RefWatcher
+    private var refWatcher: RefWatcher? = null
 
     override fun onCreate() {
         super.onCreate()

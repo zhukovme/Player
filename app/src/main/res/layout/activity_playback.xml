@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="com.zhukovme.player.ui.screens.playback.PlaybackState"/>
+
+        <variable
+            name="presenter"
+            type="com.zhukovme.player.ui.screens.playback.PlaybackPresenter"/>
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/wine_berry_alpha_100"
+        tools:context="com.zhukovme.player.ui.screens.playback.PlaybackActivity">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@android:color/transparent"
+            app:elevation="0dp">
+
+            <include
+                layout="@layout/toolbar"
+                app:subtitle="@{state.subtitle}"
+                app:title="@{state.title}"/>
+
+        </android.support.design.widget.AppBarLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</layout>

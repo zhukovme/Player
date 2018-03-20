@@ -1,0 +1,22 @@
+autoCorrect: true
+failFast: true
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  UnusedPrivateMember:
+    active: false
+  WildcardImport:
+    active: false
+
+comments:
+  active: false
+
+complexity:
+  LabeledExpression:
+    active: false
+
+potential-bugs:
+  UnsafeCast:
+    active: false
+  
