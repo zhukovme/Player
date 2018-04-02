@@ -28,26 +28,52 @@ open class Command : AbstractCommand()
 object None : Command()
 
 interface Component {
-    fun update(action: Action, state: State): Pair<State, Command>
+    fun reduce(state: State, action: Action): Pair<State, Command>
     fun render(state: State)
     fun call(cmd: Command): Single<Action>
 }
 
 class Store {
 
-    private val actionRelay: BehaviorRelay<Pair<Action, State>> = BehaviorRelay.create()
-    private var actionQueue = ArrayDeque<Action>()
-    private var component: Component? = null
+    companion object {
+        fun init(initialState: State, component: Component): Store {
+            val store = Store()
+            store.create(initialState, component)
+            return store
+        }
+    }
+
     var state: State? = null
         private set
 
-    fun create(initialState: State, component: Component): Disposable {
+    private val actionRelay: BehaviorRelay<Pair<Action, State>> = BehaviorRelay.create()
+    private var actionDisposable: Disposable? = null
+    private var actionQueue = ArrayDeque<Action>()
+    private var component: Component? = null
+
+    fun dispatch(action: Action) {
+        Timber.d("elm dispatch event:${action.javaClass.simpleName}")
+        actionQueue.addLast(action)
+        if (actionQueue.size == 1) {
+            state?.let { actionRelay.accept(Pair(actionQueue.first, it)) }
+        }
+    }
+
+    fun render() {
+        state?.let { component?.render(it) }
+    }
+
+    fun terminate() {
+        actionDisposable?.dispose()
+    }
+
+    private fun create(initialState: State, component: Component) {
         this.component = component
         this.state = initialState
-        return actionRelay
+        actionDisposable = actionRelay
                 .map { (action, state) ->
-                    Timber.d("elm update action:$action ")
-                    component.update(action, state)
+                    Timber.d("elm reduce action:$action ")
+                    component.reduce(state, action)
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext { (state, _) ->
@@ -81,22 +107,9 @@ class Store {
                 }
     }
 
-    fun render() {
-        state?.let { component?.render(it) }
-    }
-
     private fun loop() {
         if (actionQueue.size > 0) {
             state?.let { actionRelay.accept(Pair(actionQueue.first, it)) }
         }
     }
-
-    fun accept(action: Action) {
-        Timber.d("elm accept event:${action.javaClass.simpleName}")
-        actionQueue.addLast(action)
-        if (actionQueue.size == 1) {
-            state?.let { actionRelay.accept(Pair(actionQueue.first, it)) }
-        }
-    }
-
 }

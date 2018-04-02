@@ -2,26 +2,27 @@ package com.zhukovme.player.ui.screens.playback
 
 import com.zhukovme.player.ui.base.*
 import io.reactivex.Single
-import io.reactivex.disposables.Disposable
+import javax.inject.Inject
 
 /**
  * Created by Michael Zhukov on 20.03.2018.
  * email: zhukovme@gmail.com
  */
-class PlaybackPresenter(private val view: PlaybackView,
-                        private val store: Store) : Component {
+class PlaybackPresenter
+@Inject
+constructor(private val view: PlaybackView) : Component {
 
-    private var elmDisposable: Disposable? = store.create(PlaybackState(), this)
+    private val store = Store.init(PlaybackState(), this)
 
     fun onCreate() {
-        store.accept(Init)
+        store.dispatch(Init)
     }
 
     fun onDestroy() {
-        elmDisposable?.dispose()
+        store.terminate()
     }
 
-    override fun update(action: Action, state: State): Pair<State, Command> {
+    override fun reduce(state: State, action: Action): Pair<State, Command> {
         val playbackState = state as PlaybackState
         return when (action) {
             is Init -> Pair(playbackState.copy(title = "The Elm", subtitle = "Architecture"), None)

@@ -8,8 +8,9 @@ import android.view.MenuItem
 import com.zhukovme.player.R
 import com.zhukovme.player.databinding.ActivityPlaybackBinding
 import com.zhukovme.player.ui.base.BaseActivity
-import com.zhukovme.player.ui.base.Store
+import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.toolbar.*
+import javax.inject.Inject
 
 /**
  * Created by Michael Zhukov on 20.03.2018.
@@ -24,18 +25,19 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
         }
     }
 
-    private var presenter: PlaybackPresenter? = null
+    @Inject
+    lateinit var presenter: PlaybackPresenter
     private var binding: ActivityPlaybackBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_playback)
         setStatusBarTranslucent()
         setupToolbar(toolbar, true)
 
-        presenter = PlaybackPresenter(this, Store())
         binding?.presenter = presenter
-        presenter?.onCreate()
+        presenter.onCreate()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean = when (item?.itemId) {
@@ -48,7 +50,7 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
 
     override fun onDestroy() {
         super.onDestroy()
-        presenter?.onDestroy()
+        presenter.onDestroy()
     }
 
     override fun renderState(playbackState: PlaybackState) {

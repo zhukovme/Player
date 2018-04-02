@@ -8,6 +8,8 @@ style:
     active: false
   WildcardImport:
     active: false
+  UnnecessaryAbstractClass:
+    active: false
 
 comments:
   active: false
@@ -19,4 +21,5 @@ complexity:
 potential-bugs:
   UnsafeCast:
     active: false
-  
+  LateinitUsage:
+    active: false
