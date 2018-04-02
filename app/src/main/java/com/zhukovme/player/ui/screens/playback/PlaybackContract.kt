@@ -7,8 +7,11 @@ import com.zhukovme.player.ui.base.State
  * email: zhukovme@gmail.com
  */
 data class PlaybackState(val title: String = "",
-                         val subtitle: String = "") : State()
+                         val subtitle: String = "",
+                         val snackbarMessage: String? = null) : State()
 
 interface PlaybackView {
     fun renderState(playbackState: PlaybackState)
+
+    fun showSnackbar(message: String)
 }

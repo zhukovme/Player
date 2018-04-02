@@ -25,13 +25,17 @@ constructor(private val view: PlaybackView) : Component {
     override fun reduce(state: State, action: Action): Pair<State, Command> {
         val playbackState = state as PlaybackState
         return when (action) {
-            is Init -> Pair(playbackState.copy(title = "The Elm", subtitle = "Architecture"), None)
+            is Init -> Pair(playbackState.copy(
+                    title = "The Elm",
+                    subtitle = "Architecture",
+                    snackbarMessage = null), None)
             else -> Pair(playbackState, None)
         }
     }
 
     override fun render(state: State) {
         view.renderState(state as PlaybackState)
+        state.snackbarMessage?.let { view.showSnackbar(it) }
     }
 
     override fun call(cmd: Command): Single<Action> = when (cmd) {

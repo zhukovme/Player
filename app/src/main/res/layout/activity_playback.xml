@@ -2,7 +2,8 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.zhukovme.player.ui.screens.playback.PlaybackActivity">
 
     <data>
 
@@ -16,17 +17,14 @@
     </data>
 
     <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordl_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/wine_berry_alpha_100"
-        tools:context="com.zhukovme.player.ui.screens.playback.PlaybackActivity">
+        android:layout_height="match_parent">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@android:color/transparent"
-            app:elevation="0dp">
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <include
                 layout="@layout/toolbar"

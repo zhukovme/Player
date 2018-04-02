@@ -28,7 +28,7 @@ class App : Application(), HasActivityInjector {
 
     override fun onCreate() {
         super.onCreate()
-        if (setupLeakCanary()) return
+        if (!setupLeakCanary()) return
         setupDagger()
         debugInit()
     }
@@ -45,10 +45,10 @@ class App : Application(), HasActivityInjector {
 
     private fun setupLeakCanary(): Boolean {
         if (LeakCanary.isInAnalyzerProcess(this)) {
-            return true
+            return false
         }
         refWatcher = LeakCanary.install(this)
-        return false
+        return true
     }
 
     private fun debugInit() {

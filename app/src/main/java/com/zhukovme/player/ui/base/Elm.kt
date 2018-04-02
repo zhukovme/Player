@@ -4,7 +4,6 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 
@@ -43,6 +42,7 @@ class Store {
         }
     }
 
+    var enableLogs = false
     var state: State? = null
         private set
 
@@ -52,7 +52,7 @@ class Store {
     private var component: Component? = null
 
     fun dispatch(action: Action) {
-        Timber.d("elm dispatch event:${action.javaClass.simpleName}")
+        log("---------- Dispatch action '${action.javaClass.simpleName}'")
         actionQueue.addLast(action)
         if (actionQueue.size == 1) {
             state?.let { actionRelay.accept(Pair(actionQueue.first, it)) }
@@ -72,11 +72,12 @@ class Store {
         this.state = initialState
         actionDisposable = actionRelay
                 .map { (action, state) ->
-                    Timber.d("elm reduce action:$action ")
+                    log("---------- Reduce action '${action.javaClass.simpleName}' with prev state '$state'")
                     component.reduce(state, action)
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext { (state, _) ->
+                    log("---------- Render new state '$state'")
                     component.render(state)
                 }
                 .doOnNext { (state, _) ->
@@ -87,17 +88,17 @@ class Store {
                     loop()
                 }
                 .filter { (_, cmd) -> cmd !== None }
-                .observeOn(Schedulers.io())
                 .flatMap { (state, cmd) ->
-                    Timber.d("call cmd:$cmd state:$state ")
+                    log("---------- Start command '${cmd.javaClass.simpleName}' with state '$state'")
                     return@flatMap component.call(cmd)
-                            .onErrorResumeNext { err -> Single.just(ErrorAction(err, cmd)) }
+                            .doOnSuccess { log("---------- Command: '${cmd.javaClass.simpleName}' finished") }
+                            .doOnError { t -> log("---------- Error on command: '${cmd.javaClass.simpleName}", t) }
+                            .onErrorResumeNext { throwable -> Single.just(ErrorAction(throwable, cmd)) }
                             .toObservable()
-
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { action ->
-                    Timber.d("elm subscribe action:${action.javaClass.simpleName}")
+                    log("---------- Elm subscribe action '${action.javaClass.simpleName}'")
                     when (action) {
                         is Idle -> {
                         }
@@ -111,5 +112,9 @@ class Store {
         if (actionQueue.size > 0) {
             state?.let { actionRelay.accept(Pair(actionQueue.first, it)) }
         }
+    }
+
+    private fun log(message: String, throwable: Throwable? = null) {
+        if (enableLogs) Timber.d(throwable, "$message%s", ". Component '${component?.javaClass?.simpleName}'")
     }
 }

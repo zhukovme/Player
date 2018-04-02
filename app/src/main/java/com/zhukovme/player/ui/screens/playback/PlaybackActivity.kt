@@ -4,11 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.view.MenuItem
 import com.zhukovme.player.R
 import com.zhukovme.player.databinding.ActivityPlaybackBinding
 import com.zhukovme.player.ui.base.BaseActivity
 import dagger.android.AndroidInjection
+import kotlinx.android.synthetic.main.activity_playback.*
 import kotlinx.android.synthetic.main.toolbar.*
 import javax.inject.Inject
 
@@ -33,7 +35,6 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_playback)
-        setStatusBarTranslucent()
         setupToolbar(toolbar, true)
 
         binding?.presenter = presenter
@@ -55,5 +56,10 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
 
     override fun renderState(playbackState: PlaybackState) {
         binding?.state = playbackState
+    }
+
+    override fun showSnackbar(message: String) {
+        Snackbar.make(coordl_main, message, Snackbar.LENGTH_LONG)
+                .show()
     }
 }
