@@ -11,7 +11,6 @@ import com.zhukovme.player.databinding.ActivityPlaybackBinding
 import com.zhukovme.player.ui.base.BaseActivity
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_playback.*
-import kotlinx.android.synthetic.main.toolbar.*
 import javax.inject.Inject
 
 /**
@@ -35,9 +34,9 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_playback)
-        setupToolbar(toolbar, true)
-
         binding?.presenter = presenter
+        setupToolbar(toolbar)
+
         presenter.onCreate()
     }
 

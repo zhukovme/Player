@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="roboto_regular" translatable="false">sans-serif</string>
+    <string name="roboto_regular_bold" translatable="false">sans-serif-bold</string>
+    <string name="roboto_light" translatable="false">sans-serif-light</string>
+    <string name="roboto_condensed" translatable="false">sans-serif-condensed</string>
+    <string name="roboto_black" translatable="false">sans-serif-black</string>
+    <string name="roboto_thin" translatable="false">sans-serif-thin</string>
+    <string name="roboto_medium" translatable="false">sans-serif-medium</string>
+</resources>

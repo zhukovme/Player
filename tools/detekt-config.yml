@@ -10,12 +10,16 @@ style:
     active: false
   UnnecessaryAbstractClass:
     active: false
+  ForbiddenComment:
+    active: false
 
 comments:
   active: false
 
 complexity:
   LabeledExpression:
+    active: false
+  TooManyFunctions:
     active: false
 
 potential-bugs:
