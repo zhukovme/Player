@@ -1,11 +1,11 @@
 package com.zhukovme.player.ui.base
 
-import android.databinding.BindingAdapter
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.support.v7.widget.Toolbar
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.databinding.BindingAdapter
 
 /**
  * Created by Michael Zhukov on 07.05.2018.

@@ -1,72 +1,97 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: "de.mannodermaus.android-junit5"
 apply from: "$rootDir/tools/lint-config.gradle"
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
+
     defaultConfig {
         applicationId "com.zhukovme.player"
-        minSdkVersion 14
-        targetSdkVersion 27
+        minSdkVersion 15
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     dataBinding {
         enabled = true
     }
-}
 
-ext.support_lib_version = '27.1.1'
-ext.dagger_version = '2.15'
-ext.leakcanary = '1.5.4'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        junitPlatform {
+            filters {
+                engines {
+                    include 'spek2'
+                }
+            }
+
+            jacocoOptions {
+                html.enabled = true
+                xml.enabled = false
+                csv.enabled = false
+                unitTests.all {
+                    testLogging.events = ["passed", "skipped", "failed"]
+                }
+            }
+        }
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Android
-    implementation "com.android.support:appcompat-v7:$support_lib_version"
-    implementation "com.android.support:design:$support_lib_version"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // UI
-    implementation 'de.hdodenhof:circleimageview:2.2.0'
 
     // Rx
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.10'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
-    implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
 
-    // Dependency Injection
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    // MVI
+    implementation 'com.github.badoo.mvicore:mvicore:1.1.8'
+    implementation 'com.github.badoo.mvicore:mvicore-android:1.1.8'
+//    implementation 'com.github.badoo.mvicore:mvicore-debugdrawer:1.1.8'
+
+    // Inversion of control
+    implementation 'org.kodein.di:kodein-di-generic-jvm:6.2.0'
 
     // Logger
-    implementation 'com.jakewharton.timber:timber:4.6.1'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     // Memory leak detection
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanary"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanary"
-    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanary"
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-1'
 
     // Unit tests
-    testImplementation 'junit:junit:4.12'
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testImplementation 'org.spekframework.spek2:spek-dsl-jvm:2.0.2'
+    testImplementation 'org.spekframework.spek2:spek-runner-junit5:2.0.2'
+    testImplementation 'org.assertj:assertj-core:3.11.1'
 
-    // UI tests
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    // Android tests
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }

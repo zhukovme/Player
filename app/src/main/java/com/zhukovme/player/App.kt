@@ -1,59 +1,44 @@
 package com.zhukovme.player
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
-import com.squareup.leakcanary.LeakCanary
-import com.squareup.leakcanary.RefWatcher
-import com.zhukovme.player.di.DaggerAppComponent
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
+import com.badoo.mvicore.consumer.middleware.LoggingMiddleware
+import com.badoo.mvicore.consumer.middlewareconfig.MiddlewareConfiguration
+import com.badoo.mvicore.consumer.middlewareconfig.Middlewares
+import com.badoo.mvicore.consumer.middlewareconfig.WrappingCondition
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.singleton
 import timber.log.Timber
-import javax.inject.Inject
 
 /**
  * Created by Michael Zhukov on 25.12.2017.
  * email: zhukovme@gmail.com
  */
-class App : Application(), HasActivityInjector {
+class App : Application(), KodeinAware {
 
-    companion object {
-        fun get(context: Context): App = context.applicationContext as App
+    override val kodein = Kodein.lazy {
+        bind<Context>() with singleton { applicationContext }
+        import(appModule())
     }
-
-    @Inject
-    lateinit var activityInjector: DispatchingAndroidInjector<Activity>
-
-    private var refWatcher: RefWatcher? = null
 
     override fun onCreate() {
         super.onCreate()
-        if (!setupLeakCanary()) return
-        setupDagger()
-        debugInit()
-    }
-
-    override fun activityInjector(): DispatchingAndroidInjector<Activity> = activityInjector
-
-    private fun setupDagger() {
-        DaggerAppComponent
-                .builder()
-                .application(this)
-                .build()
-                .inject(this)
-    }
-
-    private fun setupLeakCanary(): Boolean {
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return false
-        }
-        refWatcher = LeakCanary.install(this)
-        return true
+        if (BuildConfig.DEBUG) debugInit()
     }
 
     private fun debugInit() {
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+        Timber.plant(Timber.DebugTree())
+        middlewares()
+    }
+
+    private fun middlewares() {
+        Middlewares.configurations.add(
+                MiddlewareConfiguration(
+                        condition = WrappingCondition.Always,
+                        factories = listOf { consumer -> LoggingMiddleware(consumer, { Timber.d(it) }) }
+                )
+        )
     }
 }

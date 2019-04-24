@@ -8,37 +8,34 @@
     <data>
 
         <variable
-            name="state"
-            type="com.zhukovme.player.ui.screens.playback.PlaybackState"/>
+            name="viewModel"
+            type="com.zhukovme.player.ui.screens.playback.PlaybackVm"/>
 
-        <variable
-            name="presenter"
-            type="com.zhukovme.player.ui.screens.playback.PlaybackPresenter"/>
     </data>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordl_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorPrimaryDark">
 
-        <android.support.design.widget.AppBarLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                android:subtitle="@{state.subtitle}"
+                android:subtitle="@{viewModel.subtitle}"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                android:title="@{state.title}"/>
+                android:title="@{viewModel.title}"/>
 
-        </android.support.design.widget.AppBarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -56,9 +53,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_selectable_white"
-                android:onClick="@{() -> presenter.onShuffleClick()}"
                 android:padding="8dp"
-                android:src="@{presenter.getShuffleIcon(state.shuffleMode)}"
+                android:src="@{viewModel.shuffleIcon}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -66,7 +62,7 @@
                 android:id="@+id/tv_track_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{state.trackNumber}"
+                android:text="@{viewModel.trackNumber}"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@+id/iv_shuffle"
@@ -79,9 +75,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_selectable_white"
-                android:onClick="@{() -> presenter.onRepeatClick()}"
                 android:padding="8dp"
-                android:src="@{presenter.getRepeatIcon(state.repeatMode)}"
+                android:src="@{viewModel.repeatIcon}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -89,7 +84,7 @@
                 android:id="@+id/iv_track_cover"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:src="@{state.trackCover}"
+                android:src="@{viewModel.trackCover}"
                 app:layout_constraintBottom_toTopOf="@+id/bg_bottom"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -108,9 +103,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:max="@{state.progressMax}"
-                android:onProgressChanged="@{(s, p, f) -> presenter.onProgressChanged(p, f)}"
-                android:progress="@{state.progress}"
+                android:max="@{viewModel.progressMax}"
+                android:progress="@{viewModel.progress}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/bg_bottom"/>
@@ -119,9 +113,9 @@
                 android:id="@+id/tv_progress_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:text="@{presenter.getProgressTime(state.progress)}"
+                android:layout_marginLeft="8dp"
+                android:text="@{viewModel.progressTime}"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/sb_progress"
@@ -133,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:text="@{presenter.getRestTime(state.progress, state.progressMax)}"
+                android:text="@{viewModel.restTime}"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="@+id/sb_progress"
@@ -152,10 +146,9 @@
                 android:id="@+id/iv_previous_track"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="26dp"
                 android:layout_marginStart="26dp"
+                android:layout_marginLeft="26dp"
                 android:background="@drawable/bg_selectable_white"
-                android:onClick="@{() -> presenter.onPreviousClick()}"
                 android:padding="10dp"
                 android:src="@drawable/skip_previous"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -166,9 +159,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_selectable_white"
-                android:onClick="@{() -> presenter.onPlayPauseClick()}"
                 android:padding="10dp"
-                android:src="@{state.isPlaying ? @drawable/play : @drawable/pause}"
+                android:src="@{viewModel.isPlaying ? @drawable/play : @drawable/pause}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/iv_next_track"
                 app:layout_constraintStart_toEndOf="@+id/iv_previous_track"/>
@@ -180,14 +172,13 @@
                 android:layout_marginEnd="26dp"
                 android:layout_marginRight="26dp"
                 android:background="@drawable/bg_selectable_white"
-                android:onClick="@{() -> presenter.onNextClick()}"
                 android:padding="10dp"
                 android:src="@drawable/skip_next"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

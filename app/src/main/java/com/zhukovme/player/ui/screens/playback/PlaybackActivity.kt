@@ -2,22 +2,24 @@ package com.zhukovme.player.ui.screens.playback
 
 import android.content.Context
 import android.content.Intent
-import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.view.MenuItem
+import android.widget.SeekBar
+import androidx.databinding.DataBindingUtil
 import com.zhukovme.player.R
 import com.zhukovme.player.databinding.ActivityPlaybackBinding
 import com.zhukovme.player.ui.base.BaseActivity
-import dagger.android.AndroidInjection
+import com.zhukovme.player.ui.base.playbackModule
+import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_playback.*
-import javax.inject.Inject
+import org.kodein.di.Kodein
+import org.kodein.di.generic.instance
 
 /**
  * Created by Michael Zhukov on 20.03.2018.
  * email: zhukovme@gmail.com
  */
-class PlaybackActivity : BaseActivity(), PlaybackView {
+class PlaybackActivity : BaseActivity<UiEvent>(), Consumer<PlaybackVm> {
 
     companion object {
         fun start(context: Context) {
@@ -26,18 +28,20 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
         }
     }
 
-    @Inject
-    lateinit var presenter: PlaybackPresenter
+    override fun depsModule(): Kodein.Module = playbackModule(this)
+
+    private val bindings: PlaybackBindings by instance()
     private var binding: ActivityPlaybackBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_playback)
-        binding?.presenter = presenter
+        mainLayout = coordl_main
         setupToolbar(toolbar)
+        setupClickListeners()
+        bindings.setup(this)
 
-        presenter.onCreate()
+//        presenter.onCreate()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean = when (item?.itemId) {
@@ -50,15 +54,31 @@ class PlaybackActivity : BaseActivity(), PlaybackView {
 
     override fun onDestroy() {
         super.onDestroy()
-        presenter.onDestroy()
+//        presenter.onDestroy()
     }
 
-    override fun renderState(playbackState: PlaybackState) {
-        binding?.state = playbackState
+    override fun accept(viewModel: PlaybackVm?) {
+        binding?.viewModel = viewModel
     }
 
-    override fun showSnackbar(message: String) {
-        Snackbar.make(coordl_main, message, Snackbar.LENGTH_LONG)
-                .show()
+    private fun setupClickListeners() {
+        iv_shuffle.setOnClickListener { onNext(UiEvent.OnShuffleCLick) }
+        iv_repeat.setOnClickListener { onNext(UiEvent.OnRepeatClick) }
+        iv_previous_track.setOnClickListener { onNext(UiEvent.OnPreviousTrackClick) }
+        iv_next_track.setOnClickListener { onNext(UiEvent.OnNextTrackClick) }
+        iv_play_pause.setOnClickListener { onNext(UiEvent.OnPlayPauseClick) }
+        sb_progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) onNext(UiEvent.OnProgressChanged(progress))
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Do nothing
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Do nothing
+            }
+        })
     }
 }
