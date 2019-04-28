@@ -8,8 +8,8 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.zhukovme.player.ui.screens.playback.PlaybackVm"/>
+            name="state"
+            type="com.zhukovme.player.ui.screens.playback.PlaybackState"/>
 
     </data>
 
@@ -29,9 +29,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                android:subtitle="@{viewModel.subtitle}"
+                android:subtitle="@{state.subtitle}"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                android:title="@{viewModel.title}"/>
+                android:title="@{state.title}"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_selectable_white"
                 android:padding="8dp"
-                android:src="@{viewModel.shuffleIcon}"
+                android:src="@{state.shuffleIcon}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -62,7 +62,7 @@
                 android:id="@+id/tv_track_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.trackNumber}"
+                android:text="@{state.trackNumber}"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@+id/iv_shuffle"
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_selectable_white"
                 android:padding="8dp"
-                android:src="@{viewModel.repeatIcon}"
+                android:src="@{state.repeatIcon}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -84,7 +84,7 @@
                 android:id="@+id/iv_track_cover"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:src="@{viewModel.trackCover}"
+                android:src="@{state.trackCover}"
                 app:layout_constraintBottom_toTopOf="@+id/bg_bottom"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -103,8 +103,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:max="@{viewModel.progressMax}"
-                android:progress="@{viewModel.progress}"
+                android:max="@{state.progressMax}"
+                android:progress="@{state.progress}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/bg_bottom"/>
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:text="@{viewModel.progressTime}"
+                android:text="@{state.progressTime}"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/sb_progress"
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:text="@{viewModel.restTime}"
+                android:text="@{state.restTime}"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="@+id/sb_progress"
@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_selectable_white"
                 android:padding="10dp"
-                android:src="@{viewModel.isPlaying ? @drawable/play : @drawable/pause}"
+                android:src="@{state.playPauseIcon}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/iv_next_track"
                 app:layout_constraintStart_toEndOf="@+id/iv_previous_track"/>

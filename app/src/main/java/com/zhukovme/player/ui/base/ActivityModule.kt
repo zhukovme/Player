@@ -1,10 +1,10 @@
 package com.zhukovme.player.ui.base
 
 import com.zhukovme.player.ui.screens.playback.PlaybackActivity
-import com.zhukovme.player.ui.screens.playback.PlaybackBindings
-import com.zhukovme.player.ui.screens.playback.PlaybackFeature
+import com.zhukovme.player.ui.screens.playback.PlaybackPresenter
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
+import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 
 /**
@@ -12,5 +12,5 @@ import org.kodein.di.generic.singleton
  * email: zhukovme@gmail.com
  */
 fun playbackModule(activity: PlaybackActivity) = Kodein.Module("Playback") {
-    bind<PlaybackBindings>() with singleton { PlaybackBindings(activity, PlaybackFeature()) }
+    bind<PlaybackPresenter>() with singleton { PlaybackPresenter(activity, instance()) }
 }

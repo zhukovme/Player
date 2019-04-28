@@ -3,17 +3,20 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "de.mannodermaus.android-junit5"
-apply from: "$rootDir/tools/lint-config.gradle"
+apply from: "$rootDir/tools/verification/lint-config.gradle"
+apply from: "$rootDir/tools/versioning/versioning.gradle"
 
 android {
     compileSdkVersion 28
+
+    def versionProps = getVersionProps()
 
     defaultConfig {
         applicationId "com.zhukovme.player"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode buildVersionCode(versionProps)
+        versionName buildVersionName(versionProps)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -57,41 +60,37 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation deps('org.jetbrains.kotlin:kotlin-stdlib-jdk8')
 
     // Android
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'com.google.android.material:material:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-
-    // UI
+    implementation deps('androidx.appcompat:appcompat')
+    implementation deps('com.google.android.material:material')
+    implementation deps('androidx.constraintlayout:constraintlayout')
 
     // Rx
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
+    implementation deps('io.reactivex.rxjava2:rxjava')
+    implementation deps('io.reactivex.rxjava2:rxandroid')
+    implementation deps('io.reactivex.rxjava2:rxkotlin')
 
-    // MVI
-    implementation 'com.github.badoo.mvicore:mvicore:1.1.8'
-    implementation 'com.github.badoo.mvicore:mvicore-android:1.1.8'
-//    implementation 'com.github.badoo.mvicore:mvicore-debugdrawer:1.1.8'
+    // Arch
+    implementation project(path: ':rxelm')
 
     // Inversion of control
-    implementation 'org.kodein.di:kodein-di-generic-jvm:6.2.0'
+    implementation deps('org.kodein.di:kodein-di-generic-jvm')
 
     // Logger
-    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation deps('com.jakewharton.timber:timber')
 
     // Memory leak detection
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-1'
+//    debugImplementation deps('com.squareup.leakcanary:leakcanary-android')
 
     // Unit tests
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testImplementation 'org.spekframework.spek2:spek-dsl-jvm:2.0.2'
-    testImplementation 'org.spekframework.spek2:spek-runner-junit5:2.0.2'
-    testImplementation 'org.assertj:assertj-core:3.11.1'
+    testImplementation deps('org.jetbrains.kotlin:kotlin-reflect')
+    testImplementation deps('org.spekframework.spek2:spek-dsl-jvm')
+    testImplementation deps('org.spekframework.spek2:spek-runner-junit5')
+    testImplementation deps('org.assertj:assertj-core')
 
     // Android tests
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation deps('androidx.test:runner')
+    androidTestImplementation deps('androidx.test.espresso:espresso-core')
 }

@@ -2,10 +2,6 @@ package com.zhukovme.player
 
 import android.app.Application
 import android.content.Context
-import com.badoo.mvicore.consumer.middleware.LoggingMiddleware
-import com.badoo.mvicore.consumer.middlewareconfig.MiddlewareConfiguration
-import com.badoo.mvicore.consumer.middlewareconfig.Middlewares
-import com.badoo.mvicore.consumer.middlewareconfig.WrappingCondition
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.bind
@@ -30,15 +26,5 @@ class App : Application(), KodeinAware {
 
     private fun debugInit() {
         Timber.plant(Timber.DebugTree())
-        middlewares()
-    }
-
-    private fun middlewares() {
-        Middlewares.configurations.add(
-                MiddlewareConfiguration(
-                        condition = WrappingCondition.Always,
-                        factories = listOf { consumer -> LoggingMiddleware(consumer, { Timber.d(it) }) }
-                )
-        )
     }
 }

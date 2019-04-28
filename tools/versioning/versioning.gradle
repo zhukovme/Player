@@ -1,0 +1,21 @@
+ext.getVersionProps = {
+  Properties version = new Properties()
+  version.load(new FileInputStream("${rootDir}/tools/versioning/version.properties"))
+  return version
+}
+
+ext.buildVersionCode = { version ->
+  def major = version['major'] as int
+  def minor = version['minor'] as int
+  def patch = version['patch'] as int
+
+  return major * 1_000_000 + minor * 1_000 + patch
+}
+
+ext.buildVersionName = { version ->
+  def major = version['major'] as int
+  def minor = version['minor'] as int
+  def patch = version['patch'] as int
+
+  return "${major}.${minor}.${patch}"
+}

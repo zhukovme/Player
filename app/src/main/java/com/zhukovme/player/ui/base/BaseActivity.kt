@@ -8,9 +8,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
-import io.reactivex.ObservableSource
-import io.reactivex.Observer
-import io.reactivex.subjects.PublishSubject
+import com.zhukovme.player.ui.screens.playback.MvpView
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 
@@ -18,7 +16,7 @@ import org.kodein.di.KodeinAware
  * Created by Michael Zhukov on 05.03.2018.
  * email: zhukovme@gmail.com
  */
-abstract class BaseActivity<T> : AppCompatActivity(), KodeinAware, ObservableSource<T> {
+abstract class BaseActivity : AppCompatActivity(), KodeinAware, MvpView {
 
     //region Kodein
 
@@ -34,28 +32,24 @@ abstract class BaseActivity<T> : AppCompatActivity(), KodeinAware, ObservableSou
 
     //endregion
 
-    //region MVI
-
-    private val source = PublishSubject.create<T>()
-
-    protected fun onNext(t: T) {
-        source.onNext(t)
-    }
-
-    override fun subscribe(observer: Observer<in T>) {
-        source.subscribe(observer)
-    }
-
-    //endregion
-
     lateinit var mainLayout: ViewGroup
 
-    protected fun showSnackbar(@StringRes message: Int) {
+    override fun showSnackbar(@StringRes message: Int) {
         Snackbar.make(mainLayout, message, Snackbar.LENGTH_LONG)
                 .show()
     }
 
-    protected fun showToast(@StringRes message: Int) {
+    override fun showSnackbar(message: CharSequence) {
+        Snackbar.make(mainLayout, message, Snackbar.LENGTH_LONG)
+                .show()
+    }
+
+    override fun showToast(@StringRes message: Int) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG)
+                .show()
+    }
+
+    override fun showToast(message: CharSequence) {
         Toast.makeText(this, message, Toast.LENGTH_LONG)
                 .show()
     }

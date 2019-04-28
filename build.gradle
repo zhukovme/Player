@@ -1,12 +1,14 @@
 buildscript {
-    ext.kotlin_version = '1.3.30'
+    apply from: "$rootDir/tools/dependencies.gradle"
+
     repositories {
         google()
         jcenter()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "de.mannodermaus.gradle.plugins:android-junit5:1.4.2.0"
     }
 }
@@ -36,6 +38,6 @@ detekt {
         }
     }
     input = files("$rootDir/app/src/main/java")
-    config = files("$rootDir/tools/detekt-config.yml")
+    config = files("$rootDir/tools/verification/detekt-config.yml")
     filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
 }

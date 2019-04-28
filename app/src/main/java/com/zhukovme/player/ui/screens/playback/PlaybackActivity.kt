@@ -10,7 +10,6 @@ import com.zhukovme.player.R
 import com.zhukovme.player.databinding.ActivityPlaybackBinding
 import com.zhukovme.player.ui.base.BaseActivity
 import com.zhukovme.player.ui.base.playbackModule
-import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_playback.*
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
@@ -19,7 +18,7 @@ import org.kodein.di.generic.instance
  * Created by Michael Zhukov on 20.03.2018.
  * email: zhukovme@gmail.com
  */
-class PlaybackActivity : BaseActivity<UiEvent>(), Consumer<PlaybackVm> {
+class PlaybackActivity : BaseActivity() {
 
     companion object {
         fun start(context: Context) {
@@ -30,7 +29,7 @@ class PlaybackActivity : BaseActivity<UiEvent>(), Consumer<PlaybackVm> {
 
     override fun depsModule(): Kodein.Module = playbackModule(this)
 
-    private val bindings: PlaybackBindings by instance()
+    private val presenter: PlaybackPresenter by instance()
     private var binding: ActivityPlaybackBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +38,8 @@ class PlaybackActivity : BaseActivity<UiEvent>(), Consumer<PlaybackVm> {
         mainLayout = coordl_main
         setupToolbar(toolbar)
         setupClickListeners()
-        bindings.setup(this)
 
-//        presenter.onCreate()
+        presenter.onCreate()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean = when (item?.itemId) {
@@ -54,22 +52,22 @@ class PlaybackActivity : BaseActivity<UiEvent>(), Consumer<PlaybackVm> {
 
     override fun onDestroy() {
         super.onDestroy()
-//        presenter.onDestroy()
+        presenter.onDestroy()
     }
 
-    override fun accept(viewModel: PlaybackVm?) {
-        binding?.viewModel = viewModel
+    override fun render(state: PlaybackState) {
+        binding?.state = state
     }
 
     private fun setupClickListeners() {
-        iv_shuffle.setOnClickListener { onNext(UiEvent.OnShuffleCLick) }
-        iv_repeat.setOnClickListener { onNext(UiEvent.OnRepeatClick) }
-        iv_previous_track.setOnClickListener { onNext(UiEvent.OnPreviousTrackClick) }
-        iv_next_track.setOnClickListener { onNext(UiEvent.OnNextTrackClick) }
-        iv_play_pause.setOnClickListener { onNext(UiEvent.OnPlayPauseClick) }
+        iv_shuffle.setOnClickListener { presenter.dispatch(OnShuffleClick()) }
+        iv_repeat.setOnClickListener { presenter.dispatch(OnRepeatClick()) }
+        iv_previous_track.setOnClickListener { presenter.dispatch(OnPreviousTrackClick()) }
+        iv_next_track.setOnClickListener { presenter.dispatch(OnNextTrackClick()) }
+        iv_play_pause.setOnClickListener { presenter.dispatch(OnPlayPauseClick()) }
         sb_progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) onNext(UiEvent.OnProgressChanged(progress))
+                if (fromUser) presenter.dispatch(OnProgressChanged(progress))
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {

@@ -1,0 +1,69 @@
+ext {
+  // Kotlin
+  kotlinVersion = '1.3.31'
+
+  // Android
+  appcompatVersion = '1.0.2'
+  materialVersion = '1.0.0'
+  constraintlayoutVersion = '1.1.3'
+
+  // Rx
+  rxjavaVersion = '2.2.8'
+  rxandroidVersion = '2.1.1'
+  rxkotlinVersion = '2.3.0'
+  rxrelayVersion = '2.1.0'
+
+  // Inversion of control
+  kodeinVersion = '6.2.0'
+
+  // Logger
+  timberVersion = '4.7.1'
+
+  // Memory leak detection
+  leakcanaryVersion = '2.0-alpha-1'
+
+  // Testing
+  spekVersion = '2.0.2'
+  assertjVersion = '3.11.1'
+  androidTestRunnerVersion = '1.1.1'
+  espressoVersion = '3.1.1'
+
+  depsWithVersion = [
+    // Kotlin
+    "org.jetbrains.kotlin:kotlin-stdlib-jdk8" : kotlinVersion,
+
+    // Android
+    "androidx.appcompat:appcompat" : appcompatVersion,
+    "com.google.android.material:material" : materialVersion,
+    "androidx.constraintlayout:constraintlayout" : constraintlayoutVersion,
+
+    // Rx
+    "io.reactivex.rxjava2:rxjava" : rxjavaVersion,
+    "io.reactivex.rxjava2:rxandroid" : rxandroidVersion,
+    "io.reactivex.rxjava2:rxkotlin" : rxkotlinVersion,
+    "com.jakewharton.rxrelay2:rxrelay" : rxrelayVersion,
+
+    // Inversion of control
+    "org.kodein.di:kodein-di-generic-jvm" : kodeinVersion,
+
+    // Logger
+    "com.jakewharton.timber:timber" : timberVersion,
+
+    // Memory leak detection
+    "com.squareup.leakcanary:leakcanary-android" : leakcanaryVersion,
+
+    // Testing
+    "org.jetbrains.kotlin:kotlin-reflect" : kotlinVersion,
+    "org.spekframework.spek2:spek-dsl-jvm" : spekVersion,
+    "org.spekframework.spek2:spek-runner-junit5" : spekVersion,
+    "org.assertj:assertj-core" : assertjVersion,
+    "androidx.test:runner" : androidTestRunnerVersion,
+    "androidx.test.espresso:espresso-core" : espressoVersion
+  ]
+
+  deps = { String key ->
+        def version = depsWithVersion[key]
+        if (version == null) throw new IllegalDependencyNotation("Version for library '$key' undefined. Update dependencies.gradle")
+        "$key:${version}"
+    }
+}
