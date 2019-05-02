@@ -37,10 +37,12 @@ import kotlin.collections.set
  *
  * Messages are being passed to [Program] using [accept(Message)][accept] method.
  *
- * Function [render()][RenderableComponent.render] renders view in declarative style according to [State].
+ * Function [render()][RenderableComponent.render] renders view in declarative style
+ * according to [State].
  * No other changes of View can happen outside of this function
  *
- * All changes of state must be made only in function [Update][Component.update], which is a pure function.
+ * All changes of state must be made only in function [Update][Component.update],
+ * which is a pure function.
  * There cannot happen any calls to side effect, like IO work, HTTP requests, etc
  * All user interactions are processed through inheritances of Msg class.
  * Function [Update][Component.update] returns new State with changed fields and [Command][Cmd].
@@ -75,20 +77,27 @@ class Program<S : State> internal constructor(
     /** State at this moment */
     private lateinit var state: S
 
+    var isRunning: Boolean = false
+        private set
+
     private var lock: Boolean = false
     private var isRendering: Boolean = false
     private var rxElmSubscriptions: RxElmSubscriptions<S>? = null
     private var disposables: CompositeDisposable = CompositeDisposable()
 
-    fun run(initialState: S, rxElmSubscriptions: RxElmSubscriptions<S>? = null, initialMsg: Msg = Init) {
+    fun run(initialState: S,
+            rxElmSubscriptions: RxElmSubscriptions<S>? = null,
+            initialMsg: Msg = Init) {
         init(initialState, rxElmSubscriptions)
-
+        render()
         accept(initialMsg)
     }
 
-    fun run(initialState: S, rxElmSubscriptions: RxElmSubscriptions<S>? = null, initialMsgs: List<Msg>) {
+    fun run(initialState: S,
+            rxElmSubscriptions: RxElmSubscriptions<S>? = null,
+            initialMsgs: List<Msg>) {
         init(initialState, rxElmSubscriptions)
-
+        render()
         initialMsgs.forEach {
             accept(it)
         }
@@ -99,8 +108,9 @@ class Program<S : State> internal constructor(
         this.rxElmSubscriptions = rxElmSubscriptions
 
         val loopDisposable = createLoop(component, logger)
-
         disposables.add(loopDisposable)
+
+        isRunning = true
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -110,10 +120,10 @@ class Program<S : State> internal constructor(
                 .map { msg ->
 
                     val update = update(msg, component, logger)
-                    val command = update.cmds
+                    val command = update.cmd
                     val newState = update.updatedState ?: state
 
-                    if (msg is Init || newState !== this.state) {
+                    if (newState !== this.state) {
                         isRendering = true
                         if (component is Renderable<*>) {
                             (component as Renderable<S>).render(newState)
@@ -154,7 +164,8 @@ class Program<S : State> internal constructor(
                 relay.accept(cmd)
             }
             is CancelCmd -> {
-                val commandDisposablesMap = commandsDisposablesMap[cmd.cancelCmd.hashCode()] ?: return
+                val commandDisposablesMap = commandsDisposablesMap[cmd.cancelCmd.hashCode()]
+                        ?: return
 
                 val commandDisposables = commandDisposablesMap[cmd.cancelCmd.hashCode()]
                 if (commandDisposables != null && !commandDisposables.isDisposed) {
@@ -163,7 +174,8 @@ class Program<S : State> internal constructor(
                 }
             }
             is CancelByClassCmd<*> -> {
-                val commandDisposablesMap = commandsDisposablesMap[cmd.cmdClass.hashCode()] ?: return
+                val commandDisposablesMap = commandsDisposablesMap[cmd.cmdClass.hashCode()]
+                        ?: return
                 commandDisposablesMap.values.forEach { disposable ->
                     if (!disposable.isDisposed) {
                         disposable.dispose()
@@ -210,9 +222,10 @@ class Program<S : State> internal constructor(
         val switchDisposable = handleResponse(relay.switchMap { cmd ->
             logCmd("elm call cmd: $cmd")
 
-            cmdCall(cmd).subscribeOn(Schedulers.io()).doOnDispose {
-                logCmd("elm dispose cmd:$cmd")
-            }
+            cmdCall(cmd).subscribeOn(Schedulers.io())
+                    .doOnDispose {
+                        logCmd("elm dispose cmd:$cmd")
+                    }
         })
 
         disposables.add(switchDisposable)
@@ -237,7 +250,8 @@ class Program<S : State> internal constructor(
 
     private fun logUpdate(logger: RxElmLogger?, msg: Msg) {
         logger?.takeIf { it.logType().needToShowUpdates() }
-                ?.log(this.state.javaClass.simpleName, "update with msg:${msg.javaClass.simpleName} ")
+                ?.log(this.state.javaClass.simpleName,
+                        "update with msg:${msg.javaClass.simpleName} ")
     }
 
     private fun handleResponse(observable: Observable<Msg>): Disposable {
@@ -256,7 +270,8 @@ class Program<S : State> internal constructor(
         return if (handleCmdErrors) {
             component.call(cmd)
                     .onErrorResumeNext { err ->
-                        logger?.takeIf { it.logType().needToShowCommands() }?.error(this.state.javaClass.simpleName, err)
+                        logger?.takeIf { it.logType().needToShowCommands() }
+                                ?.error(this.state.javaClass.simpleName, err)
                         Single.just(ErrorMsg(err, cmd))
                     }
                     .toObservable()
@@ -265,7 +280,6 @@ class Program<S : State> internal constructor(
                     .toObservable()
         }
     }
-
 
     private fun pickNextMessageFromQueue() {
         logPickNextMessageFromQueue()
@@ -285,7 +299,7 @@ class Program<S : State> internal constructor(
         }
     }
 
-    fun render() {
+    private fun render() {
         if (component is RenderableComponent) {
             component.render(this.state)
         }
@@ -304,7 +318,8 @@ class Program<S : State> internal constructor(
     private fun logAccept(logger: RxElmLogger?, msg: Msg) {
         logger?.takeIf { logger.logType() == LogType.All }?.log(
                 this.state.javaClass.simpleName,
-                "accept msg: ${msg.javaClass.simpleName}, queue size:${messageQueue.size} lock:$lock "
+                "accept msg: ${msg.javaClass.simpleName}, " +
+                        "queue size:${messageQueue.size} lock:$lock "
         )
     }
 
@@ -319,6 +334,11 @@ class Program<S : State> internal constructor(
     }
 
     fun stop() {
+        isRunning = false
+        logger?.takeIf { logger.logType() == LogType.All }?.log(
+                this.state.javaClass.simpleName,
+                "Program stopped"
+        )
         if (!disposables.isDisposed) {
             disposables.dispose()
         }
@@ -331,5 +351,4 @@ class Program<S : State> internal constructor(
         }
         rxElmSubscriptions?.dispose()
     }
-
 }

@@ -14,14 +14,10 @@ data class BatchCmd(val cmds: MutableSet<Cmd>) : Cmd() {
 
     fun merge(cmd: Cmd): BatchCmd {
         when (cmd) {
-            is BatchCmd -> {
-                cmds.addAll(cmd.cmds)
-            }
+            is BatchCmd -> cmds.addAll(cmd.cmds)
             is None -> {
             }
-            else -> {
-                cmds.add(cmd)
-            }
+            else -> cmds.add(cmd)
         }
         return this
     }

@@ -1,12 +1,15 @@
 package com.zhukovme.player.ui.screens.playback
 
+import android.os.Parcelable
 import com.factorymarket.rxelm.contract.State
 import com.factorymarket.rxelm.msg.Msg
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Created by Michael Zhukov on 28.04.2019.
  * email: zhukovme@gmail.com
  */
+@Parcelize
 data class PlaybackState(val title: String = "",
                          val subtitle: String = "",
                          val shuffleMode: Boolean = false,
@@ -20,29 +23,26 @@ data class PlaybackState(val title: String = "",
                          val progressTime: String = "",
                          val restTime: String = "",
                          val isPlaying: Boolean = false,
-                         val playPauseIcon: Int = 0,
-                         val snackbarMessage: String? = null
-) : State()
+                         val playPauseIcon: Int = 0
+) : State(), Parcelable
 
-sealed class RepeatMode {
-    abstract val next: RepeatMode
+enum class RepeatMode {
+    Off,
+    Repeat,
+    RepeatOnce;
 
-    object Off : RepeatMode() {
-        override val next = Repeat
-    }
-
-    object Repeat : RepeatMode() {
-        override val next = RepeatOnce
-    }
-
-    object RepeatOnce : RepeatMode() {
-        override val next = Off
+    fun next(): RepeatMode {
+        return when (this) {
+            Off -> Repeat
+            Repeat -> RepeatOnce
+            RepeatOnce -> Off
+        }
     }
 }
 
-class OnShuffleClick : Msg()
-class OnRepeatClick : Msg()
-class OnPlayPauseClick : Msg()
-class OnNextTrackClick : Msg()
-class OnPreviousTrackClick : Msg()
+object OnShuffleClick : Msg()
+object OnRepeatClick : Msg()
+object OnPlayPauseClick : Msg()
+object OnNextTrackClick : Msg()
+object OnPreviousTrackClick : Msg()
 data class OnProgressChanged(val progress: Int) : Msg()

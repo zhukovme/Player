@@ -2,19 +2,20 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'io.fabric'
 apply plugin: "de.mannodermaus.android-junit5"
 apply from: "$rootDir/tools/verification/lint-config.gradle"
 apply from: "$rootDir/tools/versioning/versioning.gradle"
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
     def versionProps = getVersionProps()
 
     defaultConfig {
         applicationId "com.zhukovme.player"
-        minSdkVersion 15
-        targetSdkVersion 28
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode buildVersionCode(versionProps)
         versionName buildVersionName(versionProps)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -29,6 +30,10 @@ android {
 
     dataBinding {
         enabled = true
+    }
+
+    androidExtensions {
+        experimental = true
     }
 
     compileOptions {
@@ -67,22 +72,24 @@ dependencies {
     implementation deps('com.google.android.material:material')
     implementation deps('androidx.constraintlayout:constraintlayout')
 
+    // Firebase
+    implementation deps('com.google.firebase:firebase-core')
+    implementation deps('com.crashlytics.sdk.android:crashlytics')
+
     // Rx
     implementation deps('io.reactivex.rxjava2:rxjava')
     implementation deps('io.reactivex.rxjava2:rxandroid')
-    implementation deps('io.reactivex.rxjava2:rxkotlin')
-
-    // Arch
     implementation project(path: ':rxelm')
 
     // Inversion of control
     implementation deps('org.kodein.di:kodein-di-generic-jvm')
+    implementation deps('org.kodein.di:kodein-di-framework-android-x')
 
     // Logger
     implementation deps('com.jakewharton.timber:timber')
 
     // Memory leak detection
-//    debugImplementation deps('com.squareup.leakcanary:leakcanary-android')
+    debugImplementation deps('com.squareup.leakcanary:leakcanary-android')
 
     // Unit tests
     testImplementation deps('org.jetbrains.kotlin:kotlin-reflect')
@@ -94,3 +101,5 @@ dependencies {
     androidTestImplementation deps('androidx.test:runner')
     androidTestImplementation deps('androidx.test.espresso:espresso-core')
 }
+
+apply plugin: 'com.google.gms.google-services'

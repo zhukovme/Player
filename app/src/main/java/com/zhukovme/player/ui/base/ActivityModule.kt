@@ -11,6 +11,8 @@ import org.kodein.di.generic.singleton
  * Created by Michael Zhukov on 14.12.2018.
  * email: zhukovme@gmail.com
  */
-fun playbackModule(activity: PlaybackActivity) = Kodein.Module("Playback") {
-    bind<PlaybackPresenter>() with singleton { PlaybackPresenter(activity, instance()) }
+fun playbackModule(activity: PlaybackActivity): Kodein.Module {
+    return Kodein.Module(PlaybackActivity::class.java.simpleName) {
+        bind<PlaybackPresenter>() with singleton { PlaybackPresenter(instance()) }
+    }
 }

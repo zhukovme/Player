@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "572315502077",
+    "firebase_url": "https://player-b890c.firebaseio.com",
+    "project_id": "player-b890c",
+    "storage_bucket": "player-b890c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572315502077:android:0b4724f4b010247b",
+        "android_client_info": {
+          "package_name": "com.zhukovme.player"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572315502077-ut4fl9n29essm5vttgq7d712jhb7lu73.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDleGRpQrYHGwNrQWUc-BEdkYRNXtm3fAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572315502077-ut4fl9n29essm5vttgq7d712jhb7lu73.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

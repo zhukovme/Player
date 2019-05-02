@@ -13,7 +13,8 @@ class ProgramBuilder {
     private var handleCmdErrors: Boolean = true
 
     /**
-     * @param scheduler must be single threaded, like Schedulers.single() or AndroidSchedulers.mainThread(),
+     * @param scheduler must be single threaded, like Schedulers.single()
+     * or AndroidSchedulers.mainThread(),
      * since Program's implementation is not thread safe
      */
     fun outputScheduler(scheduler: Scheduler): ProgramBuilder {
@@ -27,7 +28,8 @@ class ProgramBuilder {
     }
 
     /**
-     * By default handleCmdErrors is set to true and RxElm handles errors from side effect and sends them in [ErrorMsg]
+     * By default handleCmdErrors is set to true and RxElm handles errors from side effect
+     * and sends them in [ErrorMsg]
      * If pass handle=false, then all unhandled errors from [Component.call] will lead to crash
      */
     fun handleCmdErrors(handle: Boolean): ProgramBuilder {
@@ -36,10 +38,7 @@ class ProgramBuilder {
     }
 
     fun <S : State> build(component: Component<S>): Program<S> {
-        if (outputScheduler == null) {
-            throw IllegalArgumentException("Output Scheduler must be provided!")
-        }
-
-        return Program(outputScheduler!!, logger, handleCmdErrors, component)
+        return outputScheduler?.let { Program(it, logger, handleCmdErrors, component) }
+                ?: throw IllegalArgumentException("Output Scheduler must be provided!")
     }
 }

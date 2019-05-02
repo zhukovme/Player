@@ -21,39 +21,28 @@ class RxElmSubscriptions<S : State> {
 
     private val subs: Queue<Observable<out Msg>> = LinkedList<Observable<out Msg>>()
     private val conditionalSubs: Queue<Pair<(S) -> Boolean, Observable<out Msg>>> =
-        LinkedList<Pair<(S) -> Boolean, Observable<out Msg>>>()
+            LinkedList<Pair<(S) -> Boolean, Observable<out Msg>>>()
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     /**
      * Adds <[Msg]> observable to collection which result will be passed
-     * to [Program's accept(Message)][Program.accept] method
+     * to [Program's accept(Message)][Program.accept] method, but will be ignored
+     * if Predicate will fail on first check
      */
-    fun addMessageObservable(observable: Observable<out Msg>): RxElmSubscriptions<S> {
-        subs.add(observable)
-        return this
-    }
-
-    /**
-     * Same as [addMessageObservable], but will be ignored if Predicate will fail on first check
-     */
-    fun addConditionalMessageObservable(
-        predicate: (S) -> Boolean,
-        observable: Observable<out Msg>
-    ): RxElmSubscriptions<S> {
-        conditionalSubs.add(predicate to observable)
+    fun addObservable(observable: Observable<out Msg>,
+                      predicate: ((S) -> Boolean)? = null): RxElmSubscriptions<S> {
+        predicate?.let { conditionalSubs.add(it to observable) }
+                ?: run { subs.add(observable) }
         return this
     }
 
     /**
      * Subscribe all data sources to [Program.accept(Message)][Program.accept]
-     *
-     *
      * Checks if conditional data sources' predicate is true.
-     *
      * If it is, subscribes them if not - just delete.
      */
     fun subscribe(program: Program<S>, state: S) {
-        moveConditionalSubsToSubsIfTheyMatchPredicate(state)
+        mergeSubs(state)
 
         if (subs.isEmpty()) {
             return
@@ -61,10 +50,10 @@ class RxElmSubscriptions<S : State> {
         var sub = subs.poll()
         while (sub != null) {
             val disposable = sub
-                .observeOn(program.outputScheduler)
-                .subscribe { msg ->
-                    program.accept(msg)
-                }
+                    .observeOn(program.outputScheduler)
+                    .subscribe { msg ->
+                        program.accept(msg)
+                    }
             compositeDisposable.add(disposable)
             sub = subs.poll()
         }
@@ -79,7 +68,7 @@ class RxElmSubscriptions<S : State> {
         }
     }
 
-    private fun moveConditionalSubsToSubsIfTheyMatchPredicate(state: S) {
+    private fun mergeSubs(state: S) {
         if (conditionalSubs.isEmpty()) {
             return
         }

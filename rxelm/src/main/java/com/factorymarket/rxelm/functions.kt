@@ -7,7 +7,6 @@ import com.factorymarket.rxelm.msg.Msg
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
-
 inline fun statelessEffect(crossinline operations: () -> Unit): Single<Msg> {
     return Single.fromCallable {
         operations()

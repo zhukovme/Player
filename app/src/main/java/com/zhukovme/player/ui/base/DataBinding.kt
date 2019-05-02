@@ -1,14 +1,22 @@
 package com.zhukovme.player.ui.base
 
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
 import androidx.databinding.BindingAdapter
 
 /**
  * Created by Michael Zhukov on 07.05.2018.
  * email: zhukovme@gmail.com
  */
+//region View
+
+@BindingAdapter("android:visibility")
+fun setVisibility(view: View, isVisible: Boolean) {
+    view.visibility = if (isVisible) View.VISIBLE else View.GONE
+}
+
+//endregion
 
 //region TextView
 
@@ -20,32 +28,7 @@ fun setText(textView: TextView, resId: Int) {
 
 //endregion
 
-//region Toolbar
-
-@BindingAdapter("android:title")
-fun setTitle(toolbar: Toolbar, resId: Int) {
-    if (resId == 0) return
-    toolbar.setTitle(resId)
-}
-
-@BindingAdapter("android:subtitle")
-fun setSubtitle(toolbar: Toolbar, resId: Int) {
-    if (resId == 0) return
-    toolbar.setSubtitle(resId)
-}
-
-//endregion
-
 //region ImageView
-
-//@BindingAdapter("android:src")
-//fun setImageUri(view: ImageView, imageUri: String?) {
-//    if (imageUri == null) {
-//        view.setImageURI(null)
-//    } else {
-//        view.setImageURI(Uri.parse(imageUri))
-//    }
-//}
 
 @BindingAdapter("android:src")
 fun setImageResource(imageView: ImageView, resource: Int) {

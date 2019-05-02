@@ -4,12 +4,16 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.4.2.0"
+        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.4.2.0'
     }
 }
 
@@ -21,7 +25,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -37,7 +40,7 @@ detekt {
             destination = file("$rootDir/reports/detekt.html")
         }
     }
-    input = files("$rootDir/app/src/main/java")
+    input = files("$rootDir/app/src/main/java", "$rootDir/rxelm/src/main/java")
     config = files("$rootDir/tools/verification/detekt-config.yml")
     filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
 }

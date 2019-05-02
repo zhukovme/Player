@@ -12,13 +12,13 @@ import com.factorymarket.rxelm.sub.RxElmSubscriptions
 import io.reactivex.Single
 
 class CompositeComponent<S : State>(
-    programBuilder: ProgramBuilder,
-    private var renderer: Renderable<S>
+        programBuilder: ProgramBuilder,
+        private var renderer: Renderable<S>
 ) : Component<S>, Renderable<S> {
 
-    private val components: MutableList<
-            Triple<PluginComponent<State>, ((mainState: S) -> State)?, ((subState: State, mainState: S) -> S)?>> =
-        mutableListOf()
+    private val components: MutableList<Triple<PluginComponent<State>,
+            ((mainState: S) -> State)?,
+            ((subState: State, mainState: S) -> S)?>> = mutableListOf()
 
     private val program: Program<S> = programBuilder.build(this)
 
@@ -34,40 +34,41 @@ class CompositeComponent<S : State>(
         program.stop()
     }
 
-    fun run(
-        initialState: S,
-        rxElmSubscriptions: RxElmSubscriptions<S>? = null,
-        initialMsg: Msg = Init
-    ) {
+    fun run(initialState: S,
+            rxElmSubscriptions: RxElmSubscriptions<S>? = null,
+            initialMsg: Msg = Init) {
         if (components.isEmpty()) {
             throw IllegalStateException("No components defined!")
         }
         program.run(initialState, rxElmSubscriptions, initialMsg)
     }
 
-    @Suppress("UNCHECKED_CAST", "UnsafeCast")
+    @Suppress("UNCHECKED_CAST")
     fun <SS : State> addComponent(
-        component: PluginComponent<SS>,
-        toSubStateFun: (mainState: S) -> SS,
-        toMainStateFun: (subState: SS, mainState: S) -> S
-    ) {
+            component: PluginComponent<SS>,
+            toSubStateFun: (mainState: S) -> SS,
+            toMainStateFun: (subState: SS, mainState: S) -> S) {
         components.add(
-            Triple(
-                component,
-                toSubStateFun,
-                toMainStateFun
-            ) as Triple<PluginComponent<State>, (mainState: S) -> State, (subState: State, mainState: S) -> S>
+                Triple(
+                        component,
+                        toSubStateFun,
+                        toMainStateFun
+                ) as Triple<PluginComponent<State>,
+                        (mainState: S) -> State,
+                        (subState: State, mainState: S) -> S>
         )
     }
 
-    @Suppress("UNCHECKED_CAST", "UnsafeCast")
+    @Suppress("UNCHECKED_CAST")
     fun addMainComponent(component: PluginComponent<S>) {
         components.add(
-            Triple(
-                component,
-                null,
-                null
-            ) as Triple<PluginComponent<State>, ((mainState: S) -> State)?, ((subState: State, mainState: S) -> S)?>
+                Triple(
+                        component,
+                        null,
+                        null
+                ) as Triple<PluginComponent<State>,
+                        ((mainState: S) -> State)?,
+                        ((subState: State, mainState: S) -> S)?>
         )
     }
 
@@ -84,7 +85,7 @@ class CompositeComponent<S : State>(
         return Single.just(Idle)
     }
 
-    @Suppress("UNCHECKED_CAST", "UnsafeCast")
+    @Suppress("UNCHECKED_CAST")
     override fun update(msg: Msg, state: S): Update<S> {
         var combinedCmd = BatchCmd()
         var combinedState = state
@@ -93,10 +94,11 @@ class CompositeComponent<S : State>(
                 val subState = toSubStateFun?.let { it(combinedState) } ?: combinedState
                 val (componentState, componentCmd) = component.update(msg, subState)
                 val updatedState = componentState ?: subState
-                combinedState = toMainStateFun?.let { it(updatedState, combinedState) } ?: componentState as S
+                combinedState = toMainStateFun?.let { it(updatedState, combinedState) }
+                        ?: componentState as S
                 combinedCmd = combinedCmd.merge(componentCmd)
             }
         }
-        return Update.update(combinedState, (combinedCmd as Cmd))
+        return Update(combinedState, combinedCmd as Cmd)
     }
 }
