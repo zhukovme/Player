@@ -1,9 +1,11 @@
 package com.factorymarket.rxelm.program
 
 import com.factorymarket.rxelm.cmd.*
-import com.factorymarket.rxelm.contract.*
-import com.factorymarket.rxelm.log.LogType
-import com.factorymarket.rxelm.log.RxElmLogger
+import com.factorymarket.rxelm.contract.Component
+import com.factorymarket.rxelm.contract.RenderableComponent
+import com.factorymarket.rxelm.contract.State
+import com.factorymarket.rxelm.contract.Update
+import com.factorymarket.rxelm.interceptor.RxElmInterceptor
 import com.factorymarket.rxelm.msg.ErrorMsg
 import com.factorymarket.rxelm.msg.Idle
 import com.factorymarket.rxelm.msg.Init
@@ -13,7 +15,6 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.Relay
 import io.reactivex.Observable
 import io.reactivex.Scheduler
-import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -58,12 +59,12 @@ import kotlin.collections.set
  * you must send [Command][Cmd] which inherits [SwitchCmd], this will
  * do all side effect in rx [switchMap][Observable.switchMap] operator
  *
- * @param outputScheduler the scheduler to [observe on][Observable.observeOn]
+ * @param msgScheduler the scheduler to [observe on][Observable.observeOn]
  */
 class Program<S : State> internal constructor(
-        val outputScheduler: Scheduler,
-        private val logger: RxElmLogger?,
-        private val handleCmdErrors: Boolean,
+        val msgScheduler: Scheduler,
+        private val cmdScheduler: Scheduler,
+        private val interceptor: RxElmInterceptor,
         private val component: Component<S>
 ) {
 
@@ -89,7 +90,7 @@ class Program<S : State> internal constructor(
             rxElmSubscriptions: RxElmSubscriptions<S>? = null,
             initialMsg: Msg = Init) {
         init(initialState, rxElmSubscriptions)
-        render()
+        render(state)
         accept(initialMsg)
     }
 
@@ -97,40 +98,33 @@ class Program<S : State> internal constructor(
             rxElmSubscriptions: RxElmSubscriptions<S>? = null,
             initialMsgs: List<Msg>) {
         init(initialState, rxElmSubscriptions)
-        render()
-        initialMsgs.forEach {
-            accept(it)
-        }
+        render(state)
+        initialMsgs.forEach { accept(it) }
     }
 
     private fun init(initialState: S, rxElmSubscriptions: RxElmSubscriptions<S>?) {
         this.state = initialState
         this.rxElmSubscriptions = rxElmSubscriptions
 
-        val loopDisposable = createLoop(component, logger)
+        val loopDisposable = createLoop(component)
         disposables.add(loopDisposable)
 
         isRunning = true
+        interceptor.onInit(state)
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun createLoop(component: Component<S>, logger: RxElmLogger?): Disposable {
+    fun createLoop(component: Component<S>): Disposable {
         return messageRelay
-                .observeOn(outputScheduler)
+                .observeOn(msgScheduler)
                 .map { msg ->
 
-                    val update = update(msg, component, logger)
+                    val update = update(msg, component)
                     val command = update.cmd
                     val newState = update.updatedState ?: state
 
                     if (newState !== this.state) {
-                        isRendering = true
-                        if (component is Renderable<*>) {
-                            (component as Renderable<S>).render(newState)
-                        } else if (component is RenderableComponent) {
-                            component.render(newState)
-                        }
-                        isRendering = false
+                        render(newState)
                     }
 
                     this.state = newState
@@ -158,6 +152,7 @@ class Program<S : State> internal constructor(
     }
 
     private fun executeCommand(cmd: Cmd) {
+        interceptor.onCmdReceived(cmd, state)
         when (cmd) {
             is SwitchCmd -> {
                 val relay = getSwitchRelay(cmd)
@@ -169,7 +164,6 @@ class Program<S : State> internal constructor(
 
                 val commandDisposables = commandDisposablesMap[cmd.cancelCmd.hashCode()]
                 if (commandDisposables != null && !commandDisposables.isDisposed) {
-                    logCmd("elm cancel cmd:${cmd.cancelCmd}")
                     commandDisposables.dispose()
                 }
             }
@@ -187,9 +181,7 @@ class Program<S : State> internal constructor(
     }
 
     private fun handleCmd(cmd: Cmd) {
-        logCmd("elm call cmd:$cmd")
-
-        val cmdObservable = cmdCall(cmd).subscribeOn(Schedulers.io())
+        val cmdObservable = cmdCall(cmd)
         val disposable = handleResponse(cmdObservable)
         val cmdDisposablesMap = commandsDisposablesMap[cmd::class.hashCode()]
         cmdDisposablesMap?.let {
@@ -220,107 +212,65 @@ class Program<S : State> internal constructor(
 
     private fun subscribeSwitchRelay(relay: BehaviorRelay<SwitchCmd>) {
         val switchDisposable = handleResponse(relay.switchMap { cmd ->
-            logCmd("elm call cmd: $cmd")
-
-            cmdCall(cmd).subscribeOn(Schedulers.io())
-                    .doOnDispose {
-                        logCmd("elm dispose cmd:$cmd")
-                    }
+            cmdCall(cmd)
         })
 
         disposables.add(switchDisposable)
     }
 
-    private fun logCmd(message: String) {
-        logger?.takeIf { it.logType().needToShowCommands() }
-                ?.log(this.state.javaClass.simpleName, message)
-    }
-
-    private fun update(msg: Msg, component: Component<S>, logger: RxElmLogger?): Update<S> {
-        logUpdate(logger, msg)
-
+    private fun update(msg: Msg, component: Component<S>): Update<S> {
         val updateResult = component.update(msg, this.state)
-
         if (messageQueue.size > 0) {
             messageQueue.removeFirst()
         }
-
+        interceptor.onUpdate(msg, updateResult.cmd, updateResult.updatedState, state)
         return updateResult
-    }
-
-    private fun logUpdate(logger: RxElmLogger?, msg: Msg) {
-        logger?.takeIf { it.logType().needToShowUpdates() }
-                ?.log(this.state.javaClass.simpleName,
-                        "update with msg:${msg.javaClass.simpleName} ")
     }
 
     private fun handleResponse(observable: Observable<Msg>): Disposable {
         return observable
-                .observeOn(outputScheduler)
+                .observeOn(msgScheduler)
                 .subscribe { msg ->
                     if (msg !is Idle) {
                         messageQueue.addLast(msg)
                     }
-
                     pickNextMessageFromQueue()
                 }
     }
 
     private fun cmdCall(cmd: Cmd): Observable<Msg> {
-        return if (handleCmdErrors) {
-            component.call(cmd)
-                    .onErrorResumeNext { err ->
-                        logger?.takeIf { it.logType().needToShowCommands() }
-                                ?.error(this.state.javaClass.simpleName, err)
-                        Single.just(ErrorMsg(err, cmd))
-                    }
-                    .toObservable()
-        } else {
-            component.call(cmd)
-                    .toObservable()
-        }
+        return component.call(cmd)
+                .doOnError { interceptor.onCmdError(cmd, it, state) }
+                .doOnDispose { interceptor.onCmdCancelled(cmd, state) }
+                .doOnSuccess { interceptor.onCmdSuccess(cmd, it, state) }
+                .onErrorReturn { err -> ErrorMsg(err, cmd) }
+                .toObservable()
+                .subscribeOn(cmd.cmdScheduler ?: cmdScheduler)
     }
 
     private fun pickNextMessageFromQueue() {
-        logPickNextMessageFromQueue()
-
         if (!lock && messageQueue.size > 0) {
             lock = true
             messageRelay.accept(messageQueue.first)
         }
     }
 
-    private fun logPickNextMessageFromQueue() {
-        logger?.takeIf { logger.logType() == LogType.All }?.let {
-            logger.log(
-                    this.state.javaClass.simpleName,
-                    "pickNextMessageFromQueue, queue size:${messageQueue.size}"
-            )
-        }
-    }
-
-    private fun render() {
+    fun render(state: S) {
         if (component is RenderableComponent) {
-            component.render(this.state)
+            interceptor.onRender(state)
+            isRendering = true
+            component.render(state)
+            isRendering = false
         }
     }
 
     fun accept(msg: Msg) {
-        logAccept(logger, msg)
-
+        interceptor.onMsgReceived(msg, state)
         messageQueue.addLast(msg)
         if (!lock && messageQueue.size == 1) {
             lock = true
             messageRelay.accept(messageQueue.first)
         }
-    }
-
-    private fun logAccept(logger: RxElmLogger?, msg: Msg) {
-        logger?.takeIf { logger.logType() == LogType.All }?.log(
-                this.state.javaClass.simpleName,
-                "accept msg: ${msg.javaClass.simpleName}, " +
-                        "queue size:${messageQueue.size} lock:$lock "
-        )
     }
 
     fun getState(): S? {
@@ -335,10 +285,7 @@ class Program<S : State> internal constructor(
 
     fun stop() {
         isRunning = false
-        logger?.takeIf { logger.logType() == LogType.All }?.log(
-                this.state.javaClass.simpleName,
-                "Program stopped"
-        )
+        interceptor.onStop(state)
         if (!disposables.isDisposed) {
             disposables.dispose()
         }

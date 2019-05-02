@@ -33,7 +33,7 @@ abstract class BasePresenter<T>(
 
     open fun onCreate(savedInstanceState: Bundle?) {
         val state = savedInstanceState?.getParcelable(BUNDLE_STATE) ?: setupInitialState()
-        if (program.isRunning) render(state)
+        if (program.isRunning) program.render(state)
         else program.run(state, setupSubscriptions())
     }
 

@@ -1,9 +1,14 @@
 package com.factorymarket.rxelm.cmd
 
+import io.reactivex.Scheduler
 import kotlin.reflect.KClass
 
-sealed class AbstractCmd
-open class Cmd : AbstractCmd()
+sealed class AbstractCmd {
+    override fun toString(): String {
+        return this.javaClass.simpleName
+    }
+}
+open class Cmd(val cmdScheduler: Scheduler? = null) : AbstractCmd()
 open class SwitchCmd : Cmd()
 data class CancelCmd(val cancelCmd: Cmd) : Cmd()
 data class CancelByClassCmd<T : Cmd>(val cmdClass: KClass<T>) : Cmd()

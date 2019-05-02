@@ -1,7 +1,6 @@
 package com.zhukovme.player
 
-import com.factorymarket.rxelm.log.LogType
-import com.factorymarket.rxelm.log.RxElmLogger
+import com.factorymarket.rxelm.interceptor.LoggingInterceptor
 import com.factorymarket.rxelm.program.ProgramBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import org.kodein.di.Kodein
@@ -19,19 +18,11 @@ fun appModule() = Kodein.Module("App") {
 
 private fun programBuilder(): ProgramBuilder {
     return ProgramBuilder()
-            .outputScheduler(AndroidSchedulers.mainThread())
-            .handleCmdErrors(true)
-            .logger(object : RxElmLogger {
-                override fun logType(): LogType {
-                    return LogType.All
-                }
-
-                override fun error(stateName: String, t: Throwable) {
-                    Timber.tag(stateName).e(t)
-                }
-
-                override fun log(stateName: String, message: String) {
-                    Timber.tag(stateName).d(message)
+            .msgScheduler(AndroidSchedulers.mainThread())
+            .interceptor(object : LoggingInterceptor() {
+                override fun log(tag: String, message: String, error: Throwable?) {
+                    Timber.tag(tag).d(message)
+                    error?.let { Timber.tag(tag).e(error) }
                 }
             })
 }

@@ -38,14 +38,9 @@ data class Update<S : State>(
     }
 }
 
-interface RenderableComponent<S : State> : Component<S> {
-    /** Just render current state, no changes invoked */
-    fun render(state: S)
-}
+interface RenderableComponent<S : State> : Renderable<S>, Component<S>
 
 interface Renderable<S : State> {
     /** Just render current state, no changes invoked */
     fun render(state: S)
-
-    fun isRendering(): Boolean = false
 }

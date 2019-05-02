@@ -50,7 +50,7 @@ class RxElmSubscriptions<S : State> {
         var sub = subs.poll()
         while (sub != null) {
             val disposable = sub
-                    .observeOn(program.outputScheduler)
+                    .observeOn(program.msgScheduler)
                     .subscribe { msg ->
                         program.accept(msg)
                     }

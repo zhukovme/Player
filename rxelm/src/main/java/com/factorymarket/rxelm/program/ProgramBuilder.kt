@@ -2,43 +2,33 @@ package com.factorymarket.rxelm.program
 
 import com.factorymarket.rxelm.contract.Component
 import com.factorymarket.rxelm.contract.State
-import com.factorymarket.rxelm.log.RxElmLogger
-import com.factorymarket.rxelm.msg.ErrorMsg
+import com.factorymarket.rxelm.interceptor.RxElmInterceptor
+import com.factorymarket.rxelm.interceptor.RxElmInterceptorComposer
 import io.reactivex.Scheduler
+import io.reactivex.schedulers.Schedulers
 
 class ProgramBuilder {
 
-    private var outputScheduler: Scheduler? = null
-    private var logger: RxElmLogger? = null
-    private var handleCmdErrors: Boolean = true
+    private var msgScheduler: Scheduler = Schedulers.io()
+    private var cmdScheduler: Scheduler = Schedulers.io()
+    private val interceptors = RxElmInterceptorComposer()
 
-    /**
-     * @param scheduler must be single threaded, like Schedulers.single()
-     * or AndroidSchedulers.mainThread(),
-     * since Program's implementation is not thread safe
-     */
-    fun outputScheduler(scheduler: Scheduler): ProgramBuilder {
-        this.outputScheduler = scheduler
+    fun msgScheduler(scheduler: Scheduler): ProgramBuilder {
+        this.msgScheduler = scheduler
         return this
     }
 
-    fun logger(logger: RxElmLogger): ProgramBuilder {
-        this.logger = logger
+    fun cmdScheduler(scheduler: Scheduler): ProgramBuilder {
+        this.cmdScheduler = scheduler
         return this
     }
 
-    /**
-     * By default handleCmdErrors is set to true and RxElm handles errors from side effect
-     * and sends them in [ErrorMsg]
-     * If pass handle=false, then all unhandled errors from [Component.call] will lead to crash
-     */
-    fun handleCmdErrors(handle: Boolean): ProgramBuilder {
-        this.handleCmdErrors = handle
+    fun interceptor(interceptor: RxElmInterceptor): ProgramBuilder {
+        interceptors.add(interceptor)
         return this
     }
 
     fun <S : State> build(component: Component<S>): Program<S> {
-        return outputScheduler?.let { Program(it, logger, handleCmdErrors, component) }
-                ?: throw IllegalArgumentException("Output Scheduler must be provided!")
+        return Program(msgScheduler, cmdScheduler, interceptors, component)
     }
 }
