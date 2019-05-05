@@ -1,14 +1,6 @@
-package com.factorymarket.rxelm.component
+package com.zhukovme.rxelm.component
 
-import com.factorymarket.rxelm.cmd.BatchCmd
-import com.factorymarket.rxelm.cmd.Cmd
-import com.factorymarket.rxelm.contract.*
-import com.factorymarket.rxelm.msg.Idle
-import com.factorymarket.rxelm.msg.Init
-import com.factorymarket.rxelm.msg.Msg
-import com.factorymarket.rxelm.program.Program
-import com.factorymarket.rxelm.program.ProgramBuilder
-import com.factorymarket.rxelm.sub.RxElmSubscriptions
+import com.zhukovme.rxelm.program.*
 import io.reactivex.Single
 
 class CompositeComponent<S : State>(
@@ -34,13 +26,11 @@ class CompositeComponent<S : State>(
         program.stop()
     }
 
-    fun run(initialState: S,
-            rxElmSubscriptions: RxElmSubscriptions<S>? = null,
-            initialMsg: Msg = Init) {
+    fun run(initialState: S, initialMsg: Msg = Init) {
         if (components.isEmpty()) {
             throw IllegalStateException("No components defined!")
         }
-        program.run(initialState, rxElmSubscriptions, initialMsg)
+        program.run(initialState, initialMsg)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -76,7 +66,7 @@ class CompositeComponent<S : State>(
         renderer.render(state)
     }
 
-    override fun call(cmd: Cmd): Single<Msg> {
+    override fun call(cmd: Cmd): Single<out Msg> {
         components.forEach { (component, _) ->
             if (component.handlesCommands(cmd)) {
                 return component.call(cmd)

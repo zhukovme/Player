@@ -1,7 +1,7 @@
 package com.zhukovme.player
 
-import com.factorymarket.rxelm.interceptor.LoggingInterceptor
-import com.factorymarket.rxelm.program.ProgramBuilder
+import com.zhukovme.rxelm.interceptor.LoggingInterceptor
+import com.zhukovme.rxelm.program.ProgramBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind

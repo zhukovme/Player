@@ -1,8 +1,8 @@
 package com.zhukovme.player.ui.screens.playback
 
 import android.os.Parcelable
-import com.factorymarket.rxelm.contract.State
-import com.factorymarket.rxelm.msg.Msg
+import com.zhukovme.rxelm.program.Msg
+import com.zhukovme.rxelm.program.State
 import kotlinx.android.parcel.Parcelize
 
 /**

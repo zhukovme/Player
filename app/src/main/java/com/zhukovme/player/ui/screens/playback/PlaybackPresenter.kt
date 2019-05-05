@@ -1,13 +1,8 @@
 package com.zhukovme.player.ui.screens.playback
 
-import com.factorymarket.rxelm.cmd.Cmd
-import com.factorymarket.rxelm.contract.Update
-import com.factorymarket.rxelm.msg.ErrorMsg
-import com.factorymarket.rxelm.msg.Idle
-import com.factorymarket.rxelm.msg.Msg
-import com.factorymarket.rxelm.program.ProgramBuilder
 import com.zhukovme.player.R
 import com.zhukovme.player.ui.base.BasePresenter
+import com.zhukovme.rxelm.program.*
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 

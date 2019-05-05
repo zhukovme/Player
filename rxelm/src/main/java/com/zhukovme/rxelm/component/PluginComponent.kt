@@ -1,7 +1,9 @@
-package com.factorymarket.rxelm.contract
+package com.zhukovme.rxelm.component
 
-import com.factorymarket.rxelm.cmd.Cmd
-import com.factorymarket.rxelm.msg.Msg
+import com.zhukovme.rxelm.program.Cmd
+import com.zhukovme.rxelm.program.Component
+import com.zhukovme.rxelm.program.Msg
+import com.zhukovme.rxelm.program.State
 
 interface PluginComponent<S : State> : Component<S> {
     /**

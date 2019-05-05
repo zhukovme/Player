@@ -1,7 +1,7 @@
 package com.zhukovme.player.ui.base
 
 import androidx.annotation.StringRes
-import com.factorymarket.rxelm.contract.State
+import com.zhukovme.rxelm.program.State
 
 /**
  * Created by Michael Zhukov on 28.04.2019.

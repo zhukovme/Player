@@ -1,8 +1,8 @@
-package com.factorymarket.rxelm.interceptor
+package com.zhukovme.rxelm.interceptor
 
-import com.factorymarket.rxelm.cmd.Cmd
-import com.factorymarket.rxelm.contract.State
-import com.factorymarket.rxelm.msg.Msg
+import com.zhukovme.rxelm.program.Cmd
+import com.zhukovme.rxelm.program.State
+import com.zhukovme.rxelm.program.Msg
 
 /**
  * Created by Michael Zhukov on 02.05.2019.
@@ -38,6 +38,10 @@ class RxElmInterceptorComposer : RxElmInterceptor {
 
     override fun onCmdReceived(cmd: Cmd, state: State) {
         interceptors.forEach { it.onCmdReceived(cmd, state) }
+    }
+
+    override fun onCmdStarted(cmd: Cmd, state: State) {
+        interceptors.forEach { it.onCmdStarted(cmd, state) }
     }
 
     override fun onCmdSuccess(cmd: Cmd, resultMsg: Msg, state: State) {

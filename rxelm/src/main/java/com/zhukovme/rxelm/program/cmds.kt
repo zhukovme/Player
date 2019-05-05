@@ -1,19 +1,17 @@
-package com.factorymarket.rxelm.cmd
+package com.zhukovme.rxelm.program
 
 import io.reactivex.Scheduler
-import kotlin.reflect.KClass
 
-sealed class AbstractCmd {
+abstract class Cmd(
+        val onConflict: OnConflict = OnConflict.IgnoreByClass,
+        val scheduler: Scheduler? = null
+) {
     override fun toString(): String {
-        return this.javaClass.simpleName
+        return javaClass.simpleName
     }
 }
-open class Cmd(val cmdScheduler: Scheduler? = null) : AbstractCmd()
-open class SwitchCmd : Cmd()
-data class CancelCmd(val cancelCmd: Cmd) : Cmd()
-data class CancelByClassCmd<T : Cmd>(val cmdClass: KClass<T>) : Cmd()
-object None : Cmd()
 
+object None : Cmd()
 data class BatchCmd(val cmds: MutableSet<Cmd>) : Cmd() {
     constructor(vararg commands: Cmd) : this(commands.toMutableSet())
 
@@ -26,4 +24,12 @@ data class BatchCmd(val cmds: MutableSet<Cmd>) : Cmd() {
         }
         return this
     }
+}
+
+enum class OnConflict {
+    IgnoreByHash,
+    IgnoreByClass,
+    ReplaceByHash,
+    ReplaceByClass
+//    Keep;
 }

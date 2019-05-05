@@ -80,6 +80,7 @@ dependencies {
     implementation deps('io.reactivex.rxjava2:rxjava')
     implementation deps('io.reactivex.rxjava2:rxandroid')
     implementation project(path: ':rxelm')
+    implementation project(path: ':rxutils')
 
     // Inversion of control
     implementation deps('org.kodein.di:kodein-di-generic-jvm')

@@ -16,6 +16,5 @@ android {
 dependencies {
     implementation deps('org.jetbrains.kotlin:kotlin-stdlib-jdk8')
     implementation deps('io.reactivex.rxjava2:rxjava')
-    implementation deps('com.jakewharton.rxrelay2:rxrelay')
-    implementation project(path: ':rxutils')
+    implementation deps('io.reactivex.rxjava2:rxandroid')
 }

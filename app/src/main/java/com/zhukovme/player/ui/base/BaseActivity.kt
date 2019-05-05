@@ -9,8 +9,8 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.factorymarket.rxelm.contract.State
 import com.google.android.material.snackbar.Snackbar
+import com.zhukovme.rxelm.program.State
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.kodein
