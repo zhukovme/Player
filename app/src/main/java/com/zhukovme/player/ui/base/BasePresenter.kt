@@ -22,6 +22,8 @@ abstract class BasePresenter<S>(
 
     private val program: Program<S> = programBuilder.build(this)
 
+    //region From view
+
     open fun onAttachView(view: MvpView<S>) {
         this.view = view
     }
@@ -47,6 +49,8 @@ abstract class BasePresenter<S>(
     open fun onDestroy(isFinishing: Boolean) {
         if (isFinishing) program.stop()
     }
+
+    //endregion
 
     protected abstract fun setupInitialState(): S
 

@@ -10,20 +10,21 @@ import kotlinx.android.parcel.Parcelize
  * email: zhukovme@gmail.com
  */
 @Parcelize
-data class PlaybackState(val title: String = "",
-                         val subtitle: String = "",
-                         val shuffleMode: Boolean = false,
-                         val shuffleIcon: Int = 0,
-                         val repeatMode: RepeatMode = RepeatMode.Off,
-                         val repeatIcon: Int = 0,
-                         val trackNumber: String = "",
-                         val trackCover: Int = 0,
-                         val progress: Int = 0,
-                         val progressMax: Int = 0,
-                         val progressTime: String = "",
-                         val restTime: String = "",
-                         val isPlaying: Boolean = false,
-                         val playPauseIcon: Int = 0
+data class PlaybackState(
+        val title: String,
+        val subtitle: String?,
+        val shuffleMode: Boolean,
+        val shuffleIcon: Int,
+        val repeatMode: RepeatMode,
+        val repeatIcon: Int,
+        val trackNumber: String,
+        val trackCover: Int,
+        val progress: Int,
+        val progressMax: Int,
+        val progressTime: String,
+        val restTime: String,
+        val isPlaying: Boolean,
+        val playPauseIcon: Int
 ) : State(), Parcelable
 
 enum class RepeatMode {

@@ -14,7 +14,6 @@ class PlaybackPresenter(
         programBuilder: ProgramBuilder
 ) : BasePresenter<PlaybackState>(programBuilder) {
 
-    @Suppress("MagicNumber")
     override fun setupInitialState(): PlaybackState {
         return PlaybackState(
                 title = "Init title",
